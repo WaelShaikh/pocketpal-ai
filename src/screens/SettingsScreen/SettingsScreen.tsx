@@ -47,7 +47,13 @@ import {useTheme} from '../../hooks';
 
 import {createStyles} from './styles';
 
-import {modelStore, uiStore, hfStore, ttsStore} from '../../store';
+import {
+  modelStore,
+  uiStore,
+  hfStore,
+  ttsStore,
+  localLlmServerStore,
+} from '../../store';
 import {languageDisplayNames} from '../../locales';
 
 import {CacheType} from '../../utils/types';
@@ -1169,6 +1175,62 @@ export const SettingsScreen: React.FC = observer(() => {
 
           {/* Export Options */}
           <Card elevation={0} style={styles.card}>
+            <Card mode="contained" style={styles.card}>
+              <Card.Title title="Local LLM Server" />
+              <Card.Content>
+                <Text variant="bodyMedium" style={{marginBottom: 10}}>
+                  Expose the active model to other apps via a local HTTP server
+                  (OpenAI & Ollama API compatible).
+                </Text>
+
+                <View style={styles.switchRow}>
+                  <Text variant="bodyLarge">Enable Server</Text>
+                  <Switch
+                    value={localLlmServerStore?.isRunning ?? false}
+                    onValueChange={() => localLlmServerStore?.toggleServer()}
+                  />
+                </View>
+
+                <View style={styles.switchRow}>
+                  <Text variant="bodyLarge">Expose to LAN</Text>
+                  <Switch
+                    value={localLlmServerStore?.exposeToLan ?? false}
+                    onValueChange={val =>
+                      localLlmServerStore?.setExposeToLan(val)
+                    }
+                    disabled={!localLlmServerStore?.isRunning}
+                  />
+                </View>
+
+                {localLlmServerStore?.isRunning && (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: theme.colors.surfaceVariant,
+                      borderRadius: 8,
+                    }}>
+                    <Text variant="bodyMedium">Server is running at:</Text>
+                    <Text
+                      variant="bodyLarge"
+                      style={{fontWeight: 'bold', marginTop: 5}}>
+                      {localLlmServerStore.serverUrl}
+                    </Text>
+                    <Text variant="bodySmall" style={{marginTop: 5}}>
+                      Endpoints: /v1/chat/completions, /api/chat, /api/generate,
+                      /v1/models, /api/tags
+                    </Text>
+                  </View>
+                )}
+
+                {localLlmServerStore?.error && (
+                  <Text style={{color: theme.colors.error, marginTop: 10}}>
+                    {localLlmServerStore.error}
+                  </Text>
+                )}
+              </Card.Content>
+            </Card>
+
             <Card.Title title={l10n.settings.exportOptions} />
             <Card.Content>
               <View style={styles.settingItemContainer}>
