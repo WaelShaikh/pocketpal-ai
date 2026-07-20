@@ -144,6 +144,8 @@ class LlmServer {
       parameters: {
         delay: 1000,
       },
+      // @ts-ignore - Some versions of the TS definitions don't include this field yet
+      foregroundServiceType: ['dataSync'],
     };
 
     await BackgroundService.start(task, options);
